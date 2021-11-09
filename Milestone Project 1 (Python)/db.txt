@@ -1,0 +1,1 @@
+{"Samir": {"name": "Sam Wise", "email": "samwise@python.com", "contact": "09034346776", "password": "samWise@760", "account balance": 30000}}

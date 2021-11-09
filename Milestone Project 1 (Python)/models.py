@@ -1,5 +1,6 @@
 import database
-db = database.db
+
+db = database.db()
 
 class User():
 
@@ -20,8 +21,8 @@ class User():
     def get_pwd(self):
         return self.__password
 
-    def add_money(self, money: int):
-        print(f" {money} successfully added to {self.fullname}'s account....")
-        db[self.username]["account balance"] += money
+    # def add_money(self, money: int):
+    #     print(f" {money} successfully added to {self.fullname}'s account....")
+    #     db[self.username]["account balance"] += money
         
-   
+    

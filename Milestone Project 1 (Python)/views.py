@@ -2,9 +2,9 @@ import database
 import models
 import auth
 
-import sys
+import sys, time
 
-db = database.db
+DB = database.db()
 
 User = models.User
 
@@ -46,14 +46,13 @@ class user_view():
 
         user = User(username, email, passwd, name, contact)
 
-        db.update({user.username: {"name": user.fullname, "email": user.email, 
+        deposit = int(input(" Please Deposit to activate your account : "))
+
+        DB.add({user.username: {"name": user.fullname, "email": user.email, 
          "contact": user.contact, "password": user.get_pwd(), 
-         'account balance': 0}})
+         "account balance": deposit}})
 
         print("You have successfully registered!!")
-
-        user.add_money(int(input(" Please Deposit to activate your account : ")))
-
         print(" Account Activated")
 
         return user.username
@@ -61,50 +60,123 @@ class user_view():
     def transactions_view(self):
     
         print(" Please select your desired action below \n")
-        print(" A: Instant Transfer    B: Mobile Top-up    \n     C: Check Balance   D:Withdrawal   \n ==>  ")
+        print(" A: Instant Transfer    B: Mobile Top-up    \n     C: Check Balance   D:Withdrawal  \n  E: QUIT  \n ==>  ")
         action = input()
-        return action
+        while action !="A" and action != "B" and action != "C" and action != "D" and action != "E":
+            print(" Please select your desired action below \n")
+            print(" A: Instant Transfer    B: Mobile Top-up    \n     C: Check Balance   D:Withdrawal  \n  E: QUIT  \n ==>  ")
+            action = input()
+        else:
+            if action == "E":
+                sys.exit()
+            else:
+                return action
 
 
-    def instant_transfer_view(self, user_id):
-        print("please enter your account number")  
-        acc = input()
-    
-        while len(acc) != 10 or acc.isdigit() is False:
-            print( " INVALID ACCOUNT NUMBER....please enter the correct account number: \n  ")   
-            acc = input()
+    def __account_view(self):
+        print("select account: A: Savings account      B: Current account   \n  C:  Fixed Deposit ")
+        opts = input()
+        return True
+
+
+    def instant_transfer(self, user_id):
+
+        acc_bal = DB.query(user_id)['account balance']
+
+        Banks = {"A": "FLEMMING BANK", "B": "WEST MIDLANDS BANK", "C" : "REVENANT BANK",
+                    "D" : "HOGWARTS BANK", "E" : {"A" : "VIOLET BANK", "B" : "SPARKLING BANK",
+                     "C" : "ORANGE BANK",
+                    "D" : "REVERE"}}
+
+        self.__account_view()
+
+        print(" Bank to transfer: \n A: FLEMMING BANK     D: HOGWARTS BANK \n B: WEST MIDLANDS BANK     E: OTHERS \n C: REVENANT BANK  \n ==>")
+        bank = input()
+        while bank not in ["A", "B", "C", "D", "E"]:
+            print(" Bank to transfer: \n A: FLEMMING BANK     D: HOGWARTS BANK \n B: WEST MIDLANDS BANK     E: OTHERS \n C: REVENANT BANK  \n ==>")
+            bank = input("==>   ")
         else:
             pass
-    
-        print("please enter amount")
-        amt = int(input())
-
-        while amt < 100 or amt > db[user_id]['account balance']:
-
-            if amt < 100:
-                print("cannot transfer amount less than #100.......")
-                amt = int(input())
+        if bank != "E":
+            print(" DESTINATION ACCOUNT NUMBER: \n ==> ")
+            acc = input()
+            while len(acc) != 10 or acc.isdigit() is False:
+                print( " INVALID ACCOUNT NUMBER....PLEASE CHECK AND TRY AGAIN \n  ")
+                print(" Enter account number ==>  ")
+                acc = input(" ==> ")
             else:
-                print("insufficient funds")
-                print(" Press 1 to perform another transaction or 2 to quit ")
+                pass
+            print("\n AMOUNT TO TRANSFER ==>   \n")
+            amount = int(input("==>  "))
+
+            while amount > 200000 or amount > acc_bal:
+                if amount > 200000:
+                    print(" Cannot Transfer more than #200 000 ")
+                    amount = int(input("Please Enter Amount:   "))
+                else:
+                    print("Insufficient Funds")
+                    print(" Press 1 to perform another transaction or 2 to quit \n ==>    ")
+                    action = input()
+                    if action == "1":
+                        return self.transactions_view()
+                    else:
+                        sys.exit()
+            else:
+                pass
+
+            print(" Please Enter Password to continue: \n Password ==>")
+            pwd3 = input()
+
+            auth.transaction_auth(pwd3, user_id)
+
+            # usersDB[username]["account_balance"] -= amount 
+        
+            print(f" YOU TRANSFERED {amount} TO USER {acc} AT {bank}  ")
+            print(" Press 1 to perform another transaction or 2  to Quit.. \n")
+            action = input()
+            if action != 1 :
+                sys.exit()
+            else:
+                return self.transactions_view()
+
+        else:
+            print(" SELECT BANK: \n A: VIOLET BANK        C: ORANGE BANK \n B: SPARKLING BANK        D: REVERE \n ==>")
+            bank = Banks["E"][input("  ==>  ")]
+            print(" DESTINATION ACCOUNT NUMBER: \n ==> ")
+            acc = input()
+            while len(acc) != 10 or acc.isdigit() is False:
+                print( " INVALID ACCOUNT NUMBER....PLEASE CHECK AND TRY AGAIN \n  ")
+                print(" Enter account number ==>  ")
+                acc = input()
+            else:
+                pass
+    
+        print("Please Enter Amount:  ")
+        amount = int(input())
+
+        while amount > 200000 or amount > acc_bal:
+            if amount > 200000:
+                print(" Cannot Transfer more than #200 000 ")
+                amount = int(input("Please Enter Amount:   "))
+            else:
+                print("Insufficient Funds")
+                print(" Press 1 to perform another transaction or 2 to quit \n ==>    ")
                 action = input()
                 if action == "1":
                     return self.transactions_view()
-
                 else:
                     sys.exit()
-
         else:
             pass
 
-        print("enter secret password to complete transaction")
+        print("Please Enter you secret password to complete transaction")
         pwd = input()
 
         auth.transaction_auth(pwd, user_id)
 
-        db[user_id]['account balance'] -= amt
+        # db[user_id]['account balance'] -= amt
 
-        print(f"Transaction complete......\n your main balance is: {db[user_id]['account balance']}")
+        print(f"Transaction complete......\n your main balance is: {acc_bal-amt}")
         print("press 1 to perform another transaction or press 2 to quit")
         Opt = input()
         if Opt == "1":
@@ -113,108 +185,133 @@ class user_view():
             sys.exit()
 
     
-    # def Mobile_Top_up(self, user_id):
+    def Mobile_Top_up(self, user_id):
 
-    #     print("select service provider: A: 9mobile      B: MTN     \nC: Glo      D: Airtel ")
-    #     opt = input()
-    #     if opt in ["A", "B", "C", "D"]:
-    #     print("Maximum amount to recharge: #10,000.00")
-    #     print("please enter amount")
-    #     amt = int(input())
-    #     else:
-    #         pass
+        acc_bal = DB.query(user_id)['account balance']
 
-    #     while amt > 10000 or amt > usersDB[user_id]['account balance']:
+        print("select service provider: A: 9mobile      B: MTN     \nC: Glo      D: Airtel ")
+        input()
+        print("Maximum amount to recharge: #10,000.00")
+        print("please enter amount")
+        amt = int(input())
+        while amt > 10000 or amt > acc_bal:
+            if amt > 10000:
+                print("Maximum amount: #10,000.00")
+                amt = int(input("Please Enter Amount:   "))
+            else:
+                print(" Insufficient Funds ")
+                print(" Press 1 to perform another transaction or 2 to quit \n ==>    ")
+                action = input()
+                if action == "1":
+                    return self.transactions_view()
+                else:
+                    sys.exit()
+        else:
+            pass
 
-    #     if amt > 10000:
-    #         print("Maximum amount: #10,000.00")
-    #         amt = int(input())
-    #     else:
-    #         print("insufficient funds")
-    #         print(" Press 1 to perform another transaction or 2 to quit ")
-    #         action = input()
-    #         if action == "1":
-    #             return transactions_view()
+        print("Please Enter secret password to complete transaction\n")
+        pwd = input(' ==>   ')
 
-    #         else:
-    #             sys.exit()
-                
+        auth.transaction_auth(pwd, user_id)
 
-    #     else:
-    #         pass
+        time.sleep(2)
+        # usersDB[user_id]['account balance'] -= amt
 
-    #     print("enter secret password to complete transaction")
-    #     pwd = input()
-
-    #     verify_pwd(pwd)
-
-    #     usersDB[user_id]['account balance'] -= amt
-
-    #     print(f"Transaction complete......\n your main balance is: {usersDB[user_id]['account balance']}")
-    #     print("press 1 to perform another transaction or press 2 to quit")
-    #     Opt = input()
-    #     if Opt == "1":
-    #         return transactions_view()
-    #     else:
-    #         sys.exit()
+        print(f"Transaction complete......\n your main balance is: #{acc_balance - amt}")
+        print("press 1 to perform another transaction or press 2 to quit")
+        Opt = input()
+        if Opt == "1":
+            return self.transactions_view()
+        else:
+            sys.exit()
 
     
+    def check_balance(self, user_id):
 
+        self.__account_view()
 
-
-# def check_balance(user_id):
-
-#     print("enter secret password to check account balance")
-#     pwd = input()
-#     verify_pwd(pwd)
+        time.sleep(5)
     
-#     print(f"your main balance is: {usersDB[user_id]['account balance']}")
+        print(f"your main balance is: {DB.query(user_id)['account balance']}")
 
-#     print(" Press 1 to perform another transaction or 2 to quit ")
+        print(" Press 1 to perform another transaction or 2 to quit ")
     
-#     action = input()
+        action = input()
     
-#     if action == "1":
-#         return transactions_view()
+        if action == "1":
+            return self.transactions_view()
 
-#     else:
-#         sys.exit()
+        else:
+            sys.exit()
 
-# def withdrawal(user_id):  
-#     print("enter secret password to continue transaction")
-#     pwd = input()
-#     verify_pwd(pwd)
+    def withdrawal(self, user_id):
 
-#     print("select account: A: Savings account      B: Current account")
-#     opts = input()
-#     if opts in ["A", "B"]:
-#        print("enter amount to withdraw (Maximum amount to withdraw at a time is #20,000.00):")      
-       
-#     amt = int(input())
+        acc_bal = DB.query(user_id)['account balance']
+    
+        def amount_to_withdraw_view():
+            fund = {"A": 2000, "B": 5000, "C": 10000}
+            print(" Select amount to withdraw: \n ")
+            print(" A:  2000      C: 10000 \n B: 5000     D: Other Amount \n ==>  ")    
+            option = input("==>   ")
 
-#     while amt < 999 or amt > usersDB[user_id]['account balance']:
+            while option not in ["A","B","C","D"]:
+                print(" Select amount to withdraw:\n ")
+                print(" A:  2000      C: 10000 \n B: 5000     D: Other Amount \n ==>  ")
+                option = input()
+            else:
+                pass
 
-#         if amt < 999:
-#                sys.exit()
+            if option == "A" or option == "B" or option == "C":
+                money = fund[option]
+                return money
 
-#     else:
-#         pass  
-       
-#     usersDB[user_id]['account balance'] -= amt
+            elif option == "D":
+                print("Please Enter amount to withdraw (Not greater than 20 000)")
+                money = int(input(" Amount ==>   "))
+                while money > 20000:
+                    print(" Limit Exceeded....")
+                    print(" Please Enter amount not greater than 20000 \n ==> ")
+                    money = int(input(" Amount ==>   "))
+                else:
+                    return money
 
-#     print(f"withdrawal complete......\n your main balance is: {usersDB[user_id]['account balance']}")
-#     print("press 1 to perform another transaction or press 2 to quit")
-#     Opt = input()
-#     if Opt == "1":
-#         return transactions_view()
-#     else:
-#         sys.exit()   print("cannot withdraw amount less than #999.00.......")
-#             amt = int(input())
-#         else:
-#             print("insufficient funds")
-#             print(" Press 1 to perform another transaction or 2 to quit ")
-#             action = input()
-#             if action == "1":
-#                 return transactions_view()
+        self.__account_view()
+           
+        amt = amount_to_withdraw_view()
 
-#             else:
+        while amt < 1000 or amt > acc_bal:
+            if amt < 1000:
+                print("Can't Withdraw Amount Less than 1000 ")
+                print("Please Enter 1 to try again or 2 to perform another transaction or Q to quit")
+                action = input("==>  ")
+                if action == "1":
+                    amt = amount_to_withdraw_view()
+                elif action == "2":
+                    return self.transactions_view()
+                else:
+                    sys.exit()
+            else:
+                print("Insufficient Funds ")
+                print("Please Enter 1 to perform another transaction or Q to quit")
+                action = input("==>  ")
+                if action == "1":
+                    return self.transactions_view()
+                else:
+                    sys.exit()
+
+        else:
+            pass
+
+        print("Please Enter secret password to complete transaction\n")
+        pwd = input(' ==>   ')
+
+        auth.transaction_auth(pwd, user_id)
+        
+        time.sleep(2)
+        print(f"Please Take your cash......\n your main balance is #{acc_bal-amt}")
+        print("press 1 to perform another transaction or press 2 to quit")
+        action = input(" ==>  ")
+        if Opt == "1":
+            return self.transactions_view()
+        else:
+            sys.exit()

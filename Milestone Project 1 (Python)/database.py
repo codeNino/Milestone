@@ -1,7 +1,7 @@
 import json
 import os
 
-db_path = os.path.abspath(r"C:\Users\lordn\Documents\Programming\Milestone Projects\Milestone Project 1 (Python)\db.txt")
+db_path = os.path.abspath(r"db.txt")
 
 class db():
    

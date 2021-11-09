@@ -5,7 +5,7 @@ db_path = os.path.abspath(r"C:\Users\lordn\Documents\Programming\Milestone Proje
 
 class db():
    
-   def query(self, UserID: str):
+   def read(self, UserID: str):
       with open(db_path, 'r') as f:
          opened_file = f.readlines() 
          if opened_file == "":
@@ -20,16 +20,54 @@ class db():
            
             
    def add(self, User: dict):
-      with open(db_path, 'r+') as f:
-         if f.read() == "":
-            json.dump(User, f)
+      try:
+         assert type(User) is dict
+         with open(db_path, 'r+') as f:
+            if f.read() == "":
+               json.dump(User, f)
+               f.close()
+            else:
+               f.write("\n")
+               json.dump(User, f)
+               f.close()
+      except AssertionError:
+         print(f"Type <User> must be <dict> ")
+      except:
+         print("Oops! Something Happened")
+
+
+   def delete(self, UserID: str):
+      try:
+         with open(db_path, 'r') as f:
+            opened_file = f.readlines()
             f.close()
-         else:
-            f.write("\n")
-            json.dump(User, f)
+            with open(db_path, 'w') as fw:
+               for line in opened_file:
+                  if list(dict(json.loads(line)).keys())[0] != UserID:
+                     fw.write(line)
+               fw.close()
+      except:
+         print("Oops!! Something went wrong")
+
+   def update(self, UserID: str, data: dict):
+      try:
+         with open(db_path, 'r') as f:
+            opened_file = f.readlines()
             f.close()
-
-
-
-
-
+            with open(db_path, 'w') as fw:
+               for line in opened_file:
+                  if list(dict(json.loads(line)).keys())[0] != UserID:
+                     fw.write(line)
+                  else:
+                     doc = dict(json.loads(line))
+                     doc[UserID][list(data.keys())[0]] = list(data.values())[0]
+                     with open(db_path, 'r') as fc:
+                        if fc.read() == "":
+                           json.dump(doc, fw)
+                        else:
+                           fw.write("\n")
+                           json.dump(doc, fw)
+                        fc.close()
+               fw.close()
+      except:
+         print("Oops!! Something Happened")

@@ -1,1 +1,1 @@
-{"sam_wise": {"name": "Sam Wise", "email": "samwise@python.com", "contact": "1224346776", "password": "samWise@760", "account balance": 30000}}
+{"Samir": {"name": "Sam Johnstone", "email": "samflexyy@python.com", "contact": "23407947689", "password": "Samirflex@760", "account balance": 30000}}

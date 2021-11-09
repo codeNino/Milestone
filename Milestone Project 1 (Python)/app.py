@@ -57,8 +57,8 @@ else:
 
 
 
-user = User(user_id, DB.query(user_id)['email'], DB.query(user_id)['password'],
-        DB.query(user_id)['name'], DB.query(user_id)['contact'])
+user = User(user_id, DB.read(user_id)['email'], DB.read(user_id)['password'],
+        DB.read(user_id)['name'], DB.read(user_id)['contact'])
 
 print(f" Welcome {user.get_firstname()} to Charis Bank \n ")
 

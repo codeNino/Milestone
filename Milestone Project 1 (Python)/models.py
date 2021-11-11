@@ -21,8 +21,18 @@ class User():
     def get_pwd(self):
         return self.__password
 
-    # def add_money(self, money: int):
-    #     print(f" {money} successfully added to {self.fullname}'s account....")
-    #     db[self.username]["account balance"] += money
-        
+
+class Admin():
+
+    def __init__(self, adminID, password, email):
+        self.__adminID = adminID
+        self.__password = password
+        self.email = email
+
+    def get_id(self):
+        return self.__adminID
+
+    def get_pwd(self):
+        return self.__password
+
     

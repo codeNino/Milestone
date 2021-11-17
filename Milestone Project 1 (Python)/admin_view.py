@@ -1,24 +1,44 @@
-import database, models, auth
-import sys, time, json, os, pandas as pd
+import models
+import sys, pandas as pd
+import sqlite3, sys, traceback
+from datetime import datetime
+
+User = models.User
 
 Admin = models.Admin
 
-user_db_path = os.path.abspath(r"C:\Users\lordn\Milestone Projects\Milestone Project 1 (Python)\userDB.txt")
+conn = sqlite3.connect('Milestone_db')
+cursor = conn.cursor()
 
-admin_db_path = os.path.abspath(r"C:\Users\lordn\Milestone Projects\Milestone Project 1 (Python)\adminDB.txt")
+query = '''CREATE TABLE IF NOT EXISTS `Milestone_Admin` (
+                                id INTEGER PRIMARY KEY,
+                                adminID TEXT NOT NULL UNIQUE,
+                                email TEXT NOT NULL UNIQUE,
+                                last_login TEXT NULL, password TEXT NOT NULL
+                                );'''
+cursor.execute(query)
+conn.commit()
+cursor.close()
 
-def check_admin(admin_id):
-    with open(admin_db_path, 'r') as f:
-         opened_file = f.readlines() 
-         if opened_file == "":
-            f.close()
-            return None
-         else:
-            data = {} 
-            for line in opened_file:
-               data.update(dict(json.loads(line)))
-               f.close()
-            return data.get(admin_id, None)
+
+def check_admin(admin_id): 
+    conn = sqlite3.connect('Milestone_db')
+    cursor = conn.cursor()
+    try:
+        query = f"""SELECT * from Milestone_Admin where `adminID` = '{admin_id}' """
+        data = cursor.execute(query)
+        result = cursor.fetchone()
+        assert result is not None
+        row = tuple(result)
+        columns  = tuple([x[0] for x in data.description])
+        data = {x:y for x,y in zip(columns,row)}
+        cursor.close()
+        return data
+    except AssertionError:
+        return None
+    finally:
+        if conn:
+            conn.close()
 
 
 class Admin_view():
@@ -42,18 +62,18 @@ class Admin_view():
             else:
                 sys.exit()
         else:
-            self.__adminID = admin_id
-            self.__admin = Admin(self.__adminID, check_admin(self.__adminID)["password"],
-                        check_admin(self.__adminID)["email"])
+            admin_data = check_admin(admin_id)
+            self.__admin = Admin(admin_id, admin_data["password"],
+                        admin_data["email"])
             return self.home_page()
 
 
     def home_page(self):
-        print(f"Hello {self.__adminID}, welcome to the admin panel.")
+        print(f"Hello {self.__admin.__adminID}, welcome to the admin panel.")
         print("To view Database records Enter '1' or Enter 2 to Quit..")
         action = input("==>  ")
         while action != "1" and action != "2":
-            print(f"Hello {self.__adminID}, welcome to the admin panel.")
+            print(f"Hello {self.__admin.__adminID}, welcome to the admin panel.")
             print("To view Database records Enter '1' or Enter 2 to Quit..")
             action = input("==>  ")
         else:
@@ -66,47 +86,61 @@ class Admin_view():
     def database_view(self):
 
         def __view_userDB():
-            
-            data = {}
-            with open(user_db_path,'r') as db:
-                opened_file = db.readlines()
-                for line in opened_file:
-                    data.update(dict(json.loads(line)))
-            db.close()
-            print("Database loading....")
+            try:
+                conn = sqlite3.connect('Milestone_db')
+                cursor = conn.cursor()
+                query = """SELECT * from Milestone_Users"""
+                data = cursor.execute(query)
+                results = cursor.fetchall()
+                assert results is not None
+                columns  = tuple([x[0] for x in data.description])
 
-            [x["email"] for x in data.values()]
-            names = [x["name"] for x in data.values()]
-            emails = [x["email"] for x in data.values()]
-            contacts = [x["contact"] for x in data.values()]
-            pwds = [x["password"] for x in data.values()]
-            acc_bal = [x["account balance"] for x in data.values()]
-            usernames = [x for x in data.keys()]
-            data_dict = {"UserID": usernames, "Name": names,
-                        "Email": emails, "Contact": contacts,
-                            "Password": pwds, "Balance": acc_bal}
-            db_table = pd.DataFrame(data=data_dict)
-            print(db_table)
+                ids = [x[0] for x in results]
+                names = [x[1] for x in data.values()]
+                usernames = [x[2] for x in data.values()]
+                emails = [x[3] for x in data.values()]
+                contacts = [x[4] for x in data.keys()]
+                j_dates =  [x[5] for x in data.keys()]
+                pwd =  [x[6] for x in data.keys()]
+                acc_bal =  [x[7] for x in data.keys()]
+
+                values = tuple(ids, names, usernames, emails, contacts, j_dates, pwd, acc_bal)
+
+                data_dict = {x:y for x,y in zip(columns, values)}
+                db_table = pd.DataFrame(data=data_dict)
+                print(db_table)
+            except AssertionError:
+                print(" Database Empty.....")
+            finally:
+                conn.close()
 
                 
         def __view_adminDB():
-            
-            data = {}
-            with open(admin_db_path,'r') as db:
-                opened_file = db.readlines()
-                for line in opened_file:
-                    data.update(dict(json.loads(line)))
-            db.close()
-            print("Database loading....")
+            try:
+                conn = sqlite3.connect('Milestone_db')
+                cursor = conn.cursor()
+                query = """SELECT * from Milestone_Admin"""
+                data = cursor.execute(query)
+                results = cursor.fetchall()
+                assert results is not None
+                columns  = tuple([x[0] for x in data.description])
 
-            emails = [x["email"] for x in data.values()]
-            pwds = [x["password"] for x in data.values()]
-            id = [x for x in data.keys()]
-            data_dict = {"adminID": id,
-                        "Email": emails,
-                            "Password": pwds}
-            db_table = pd.DataFrame(data=data_dict)
-            print(db_table)
+                ids = [x[0] for x in results]
+                adminIDs = [x[1] for x in results]
+                emails = [x[2] for x in results]
+                last_login =  [x[3] for x in results]
+                pwds =  [x[4] for x in results]
+
+                values = tuple(ids, adminIDs, emails, last_login, pwds)
+
+                data_dict = {x:y for x,y in zip(columns, values)}
+                db_table = pd.DataFrame(data=data_dict)
+                print(db_table)
+            except AssertionError:
+                print(" Database Empty.....")
+            finally:
+                conn.close()
+            
 
         action = input("Enter '1' to view user records or '2' to view admin records:    ")
 

@@ -1,7 +1,3 @@
-import database
-
-db = database.db()
-
 class User():
 
     def __init__(self, username, email, password, fullname, contact):

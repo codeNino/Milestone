@@ -1,10 +1,10 @@
-import database
+import relational_database as RDB
 import models
 import auth
 
 import sys, time
 
-DB = database.db()
+DB = RDB.db()
 
 User = models.User
 
@@ -82,10 +82,10 @@ class User_view():
                 sys.exit()
 
         else:
-            self.__username = username
-            self.__user = User(self.__username, DB.read(self.__username)["email"],
-                            DB.read(self.__username)["password"], DB.read(self.__username)["name"],
-                            DB.read(self.__username)["contact"])
+            user_data = DB.read({"username":username})
+            self.__user = User(username, user_data["email"],
+                            user_data["password"], user_data["name"],
+                            user_data["contact"])
             return self.transactions_view()
 
 
@@ -127,9 +127,8 @@ class User_view():
 
         deposit = int(input(" Please Deposit to activate your account : "))
 
-        DB.add({user.username: {"name": user.fullname, "email": user.email, 
-         "contact": user.contact, "password": user.get_pwd(), 
-         "account balance": deposit}})
+        DB.add(user)
+        DB.update({"account_balance": deposit}, {"username": username})
 
         print("You have successfully registered!!")
         print(" Account Activated")
@@ -151,13 +150,13 @@ class User_view():
                 sys.exit()
             else:
                 if action == "A":
-                    return self.instant_transfer(self.__username)
+                    return self.instant_transfer(self.__user.username)
                 elif action == "B":
-                    return self.Mobile_Top_up(self.__username)
+                    return self.Mobile_Top_up(self.__user.username)
                 elif action == "C":
-                    return self.check_balance(self.__username)
+                    return self.check_balance(self.__user.username)
                 else:
-                    return self.withdrawal(self.__username)
+                    return self.withdrawal(self.__user.username)
 
 
     def __account_view(self):
@@ -168,7 +167,7 @@ class User_view():
 
     def instant_transfer(self, user_id):
 
-        acc_bal = DB.read(user_id)['account balance']
+        acc_bal = DB.read({"username":user_id})['account_balance']
 
         Banks = {"A": "FLEMMING BANK", "B": "WEST MIDLANDS BANK", "C" : "REVENANT BANK",
                     "D" : "HOGWARTS BANK", "E" : {"A" : "VIOLET BANK", "B" : "SPARKLING BANK",
@@ -216,7 +215,7 @@ class User_view():
 
             auth.transaction_auth(pwd3, user_id)
 
-            DB.update(user_id, {"account balance": acc_bal - amount}) 
+            DB.update({"account_balance": acc_bal - amount}, {"username": user_id}) 
         
             print(f" YOU TRANSFERED {amount} TO USER {acc} AT {bank}  ")
             print(" Press 1 to perform another transaction or 2  to Quit.. \n")
@@ -261,7 +260,7 @@ class User_view():
 
         auth.transaction_auth(pwd, user_id)
 
-        DB.update(username, {"account balance": acc_bal - amount}) 
+        DB.update({"account balance": acc_bal - amount}, {"username": user_id} ) 
 
         print(f"Transaction complete......\n your main balance is: {acc_bal - amount}")
         print("press 1 to perform another transaction or press 2 to quit")
@@ -274,7 +273,7 @@ class User_view():
     
     def Mobile_Top_up(self, user_id):
 
-        acc_bal = DB.read(user_id)['account balance']
+        acc_bal = DB.read({"username":user_id})['account_balance']
 
         print("select service provider: A: 9mobile      B: MTN     \nC: Glo      D: Airtel ")
         input()
@@ -301,8 +300,7 @@ class User_view():
 
         auth.transaction_auth(pwd, user_id)
 
-        time.sleep(2)
-        DB.update(user_id, {"account balance": acc_bal - amt}) 
+        DB.update({"account balance": acc_bal - amt}, {"username": user_id}) 
 
         print(f"Transaction complete......\n your main balance is: #{acc_bal - amt}")
         print("press 1 to perform another transaction or press 2 to quit")
@@ -317,9 +315,9 @@ class User_view():
 
         self.__account_view()
 
-        time.sleep(5)
+        time.sleep(2)
     
-        print(f"your main balance is: {DB.read(user_id)['account balance']}")
+        print(f"your main balance is: {DB.read({'username':user_id})['account_balance']}")
 
         print(" Press 1 to perform another transaction or 2 to quit ")
     
@@ -333,7 +331,7 @@ class User_view():
 
     def withdrawal(self, user_id):
 
-        acc_bal = DB.read(user_id)['account balance']
+        acc_bal = DB.read({'username':user_id})['account_balance']
     
         def amount_to_withdraw_view():
             fund = {"A": 2000, "B": 5000, "C": 10000}
@@ -396,7 +394,7 @@ class User_view():
         
         time.sleep(2)
 
-        DB.update(user_id, {"account balance": acc_bal - amt}) 
+        DB.update({"account balance": acc_bal - amt}, {"username": user_id}) 
         print(f"Please Take your cash......\n your main balance is #{acc_bal - amt}")
         print("press 1 to perform another transaction or press 2 to quit")
         action = input(" ==>  ")

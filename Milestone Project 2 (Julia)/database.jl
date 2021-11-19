@@ -8,6 +8,6 @@ module database
          "email"=> "kennethjames@nhubfoundation.org", "contact"=> "07098457234","account_balance"=>100000,
                     )
                     )
-    
+
     export usersDB
 end

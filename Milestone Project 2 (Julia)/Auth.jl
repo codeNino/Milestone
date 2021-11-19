@@ -12,7 +12,7 @@ module Auth
             println("Password Incorrect...\n You have $token attempt(s) left \n")
             println("Press 1 to Try Again or 2 to Quit\n ===>  ")
             action = readline()
-            if action === "2"
+            if global action === "2"
                 exit()
             else
                 println(" Please Enter your Secret Password \n ==>  ")

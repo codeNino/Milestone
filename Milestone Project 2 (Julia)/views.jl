@@ -4,6 +4,37 @@ module views
     using .database: usersDB
     using .Auth
 
+    function login()
+        println(" Welcome to Charis Bank..\n Please Enter your UserName and Password to proceed ")
+        println(" Username  ==> ")
+        name = readline()
+        println("\n")
+        println(" Password  ==> ")
+        pwd = readline()
+        
+        authenticated = verify_userPWD(pwd, name)
+        user_exists = verify_userID(name)
+
+        while !user_exists || !authenticated
+            println("INVALID LOGIN CREDENTIALS......\n")
+            println("\n Please Enter  '1'  to Try again or Enter '2' to Register as a new user \n ==>  ")
+            action = readline()
+            if action !== "2"
+                println(" Username  ==> ")
+                global name = readline()
+                println("\n")
+                println(" Password  ==> ")
+                global pwd = readline()
+                if verify_userID(name) && verify_userPWD(pwd, name)
+                    break
+                end
+            else
+                return register_user()
+            end
+        end
+
+        return transactions_view(name)
+
     function  register_user()
 
         println(" Please Fill the form below \n ")
@@ -57,13 +88,13 @@ module views
 
         println("User registered Successfully!!! ")
 
-        return user_name
+        return login()
 
     end
 
 
 
-    function transactions_view()
+    function transactions_view(name)
 
         println(" Please select your desired action below \n")
         printstyled(" A: Instant Transfer           C:  Withdrawal \n B:  Airtime Recharge              D:  Check Balance \n   E:  Quit  \n ==>    "; color = :green)
@@ -74,9 +105,18 @@ module views
             println(" Please select your desired action below \n")
             printstyled(" A: Instant Transfer           C:  Withdrawal \n B:  Airtime Recharge              D:  Check Balance \n   E: Quit \n ==>  "; color = :green)
             global action = readline()
-            if action === "A" || action === "B" || action === "C" || action === "D"
+            if action === "A"
                 break
-                return action
+                return instant_tranfer_view(name)
+            elseif  action === "B"
+                break
+                return Airtime_Recharge(name)
+            elseif action === "C"
+                break
+                return make_withdrawal(name)
+            elseif action === "D"
+                break
+                return check_balance(name)
             elseif action === "E"
                 exit()
             end
@@ -122,7 +162,7 @@ module views
                 exit()
 
             else
-                return transactions_view()
+                return transactions_view(username)
             end
 
         else
@@ -154,7 +194,7 @@ module views
                 exit()
 
             else
-                return transactions_view()
+                return transactions_view(username)
             end
         end    
         
@@ -163,7 +203,6 @@ module views
     function Airtime_Recharge(username)
 
         printstyled( " Service Provider: \n A: VERIZON    C: REVERE \n B: LOKI     D: MOCA  \n ==>"; color = :green)
-        # Providers = Dict("A" => "VERIZON", "B" => "LOKI", "C" => "REVERE", "D" => "MOCA")
     
         readline()
     
@@ -187,7 +226,7 @@ module views
                     break
                 end
             elseif action === "2"
-                return transactions_view()
+                return transactions_view(username)
             end
         end
 
@@ -202,7 +241,7 @@ module views
             clear()
             exit()
         else
-            return transactions_view()
+            return transactions_view(username)
         end
     end
 
@@ -216,7 +255,7 @@ module views
         printstyled(" A: Savings          C: Fixed Deposit \n B: Current "; color = :green)
             
         account = readline()
-        while account !== "A" && action !== "B" && action !== "C"
+        while account !== "A" && account !== "B" && account !== "C"
             printstyled(" Select account: "; color = :green)
             printstyled(" A: Savings          C: Fixed Deposit \n B: Current "; color = :green)
             global account = readline()
@@ -224,8 +263,6 @@ module views
                 break
             end
         end
-
-        return accounts[account]
     end
 
     function amount_to_withdraw_view()
@@ -284,7 +321,7 @@ module views
                     break
                 end
             elseif action === "2"
-                return transactions_view()
+                return transactions_view(username)
             end
         end
 
@@ -310,13 +347,12 @@ module views
         if action !== "1"
             exit()
         else
-            return transactions_view()
+            return transactions_view(username)
         end
    
     end
 
     export register_user, transactions_view, instant_tranfer_view, check_balance
     export make_withdrawal,  Airtime_Recharge
-
 
 end

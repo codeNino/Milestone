@@ -1,8 +1,10 @@
 module views
     include("./database.jl")
     include("./Auth.jl")
-    using .database: usersDB
+    include("./models.jl")
+    using .database
     using .Auth
+    using .models
 
     function login()
         println(" Welcome to Charis Bank..\n Please Enter your UserName and Password to proceed ")
@@ -34,6 +36,7 @@ module views
         end
 
         return transactions_view(name)
+    end
 
     function  register_user()
 
@@ -81,11 +84,11 @@ module views
 
         println(" Enter your contact line:  ")
         contact = readline()
-        
-        usersDB[user_name] = Dict("name" => fullname, "email"=> email,
-                                    "password"=> passwd, "contact"=> contact,
-                                    "account_balance"=>0)
 
+        user = User(fullname, email, user_name, contact, passwd)
+
+        add_user(user)
+        
         println("User registered Successfully!!! ")
 
         return login()
@@ -353,6 +356,6 @@ module views
     end
 
     export register_user, transactions_view, instant_tranfer_view, check_balance
-    export make_withdrawal,  Airtime_Recharge
+    export make_withdrawal,  Airtime_Recharge, login, register_user
 
 end

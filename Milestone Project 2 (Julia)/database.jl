@@ -1,13 +1,44 @@
 module database
 
-    usersDB = Dict("Tope75" => Dict("name"=> "Tope Oke", "password"=> "Topepompin67",
-            "email" => "topeoke@nhubfondation.org", "contact"=> "08177509782", "account_balance"=> 200000),
-         "Emma419"=> Dict("name"=> "Emmanuel James", "password"=> "Emmaforthemoney900","account_balance"=>300000,
-         "email"=> "emmanueljames@nhubfoundation.org", "contact"=> "09054799258"),
-         "Ken_drik"=> Dict("name"=> "Kenneth James", "password"=> "Kendrick500",
-         "email"=> "kennethjames@nhubfoundation.org", "contact"=> "07098457234","account_balance"=>100000,
-                    )
-                    )
+    include("./models.jl")
+    using SQLite
+    using .models: User
 
-    export usersDB
+    using Dates
+
+    #create new DATABASE
+    db = SQLite.DB("MILESTONE_DB")
+
+    #create new TABLE
+
+    query =  "CREATE TABLE IF NOT EXISTS `Milestone_Users` (
+        id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL, username TEXT NOT NULL UNIQUE,
+        email TEXT NOT NULL UNIQUE, contact TEXT NOT NULL,
+         joining_date TEXT, password TEXT NOT NULL, account_balance INTEGER DEFAULT 0 );"
+
+    SQLite.execute(db, query)
+
+    function add_user(user)
+
+        query = "INSERT INTO `Milestone_Users` (name, username, email, password, contact, joining_date)  
+            VALUES  ('$user.name',
+                    '$user.username', '$user.email', '$user.password', '$user.contact', 
+                    '$Dates.now(Dates.UTC)');"
+
+        SQLite.execute(db, query)
+    end
+
+    function read_user(filter_by)
+
+        key = [i for i in keys(filter_by)][1]
+        value = [i for i in values(filter_by)][1]
+
+        query = "SELECT * from `Milestone_Users` where `$key` = '$value'"
+        return DBInterface.execute(db, query)
+    end
+
+    export add_user, read_user
+
+
 end

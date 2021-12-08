@@ -1,6 +1,4 @@
-module models
-
-    
+module models    
 
     mutable struct User
         name::String
@@ -9,7 +7,13 @@ module models
         contact::String
         password::String
     end
-    
+
+    mutable struct Admin
+        name::String
+        email::String
+        password::String
+    end
+
     
     export User
 

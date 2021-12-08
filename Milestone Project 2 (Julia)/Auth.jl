@@ -1,18 +1,17 @@
 module Auth
     include("./database.jl")
-    using .database: usersDB
+    using .database
 
     clear() = run(`cmd /c cls`)
 
 
     function transaction_auth(pwd, username)
         token = 3
-        while pwd !== usersDB[username]["password"]
-
+        while pwd !== read_user("password", Dict("username"=> username))
             println("Password Incorrect...\n You have $token attempt(s) left \n")
             println("Press 1 to Try Again or 2 to Quit\n ===>  ")
-            action = readline()
-            if global action === "2"
+            global action = readline()
+            if action === "2"
                 exit()
             else
                 println(" Please Enter your Secret Password \n ==>  ")
@@ -23,7 +22,7 @@ module Auth
                     clear()
                     exit()
                 end
-                if pwd === usersDB[username]["password"]
+                if pwd === read_user("password", Dict("username"=> username))
                     println("Transaction Authenticated")
                     break
                 end
@@ -31,9 +30,11 @@ module Auth
         end
     end
 
+
+
     function verify_userID(username)
 
-        if !haskey(usersDB, username)
+        if read_user("username", Dict("username"=> username)) === nothing
             return false
         else
             return true
@@ -43,13 +44,29 @@ module Auth
 
     function verify_userPWD(pwd, username)
 
-        if pwd !== usersDB[username]["password"]
+        if pwd !== read_user("password", Dict("username"=> username))
             return false
         else
             return true
         end
     end
 
-    export transaction_auth, verify_userPWD, verify_userID
+    function validate_domain_name(domain_name)
+
+        regex = "^((?!-)[A-Za-z0-9-]" * "{1,63}(?<!-)\\.)" * "+[A-Za-z]{2,6}"
+        regex = Regex(regex)
+        
+        if domain_name === nothing
+            return false
+        end
+        
+        if occursin(regex, domain_name)
+            return true
+        else
+            return false
+        end
+    end
+
+    export transaction_auth, verify_userPWD, verify_userID, validate_domain_name
 
 end

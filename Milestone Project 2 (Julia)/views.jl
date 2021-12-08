@@ -47,6 +47,15 @@ module views
         fullname = readline()
         println(" Enter your Email:   ")
         email = readline()
+        while ! occursin(r"@", email) || validate_domain_name(split(email, "@")[2]) === false
+            println("Invalid email....\n")
+            println(" Enter your Email:   ")
+            global email = readline()
+            if occursin(r"@", email) && validate_domain_name(split(email, "@")[2]) === true
+                break
+            end
+        end
+
         println(" Enter your Password:   \n (Password must contain digits, special characters and be at least 9 characters long) ")
         passwd = readline()
         while ! occursin(r"[&$*%#@&]", passwd) || match(r"[0-9]", passwd) === nothing || length(passwd) < 9
@@ -156,7 +165,9 @@ module views
 
             transaction_auth(pwd3, username)
 
-            usersDB[username]["account_balance"] -= amount 
+            update_user(Dict("account_balance"=> read_user("account_balance", 
+                                    Dict("username"=> username) - amount)), Dict("username"=> username))
+
         
             printstyled(" YOU TRANSFERED $amount TO USER $acc AT $bank  "; color = :blue)
             println(" Press 1 to perform another transaction or 2  to Quit.. \n")
@@ -189,7 +200,8 @@ module views
             pwd3 = readline()
 
             transaction_auth(pwd3, username)
-            usersDB[username]["account_balance"] -= amount 
+            update_user(Dict("account_balance"=> read_user("account_balance", 
+                                    Dict("username"=> username) - amount)), Dict("username"=> username))
             printstyled(" YOU TRANSFERED $amount TO USER $acc AT $bank  "; color = :blue)
             println(" Press 1 to perform another transaction or 2  to Quit.. \n")
             action = readline()
@@ -215,7 +227,7 @@ module views
         println(" Enter Amount to recharge")
         amount = parse(Int64, readline())
 
-        while amount > usersDB[username]["account_balance"]
+        while amount > read_user("account_balance", Dict("username"=> username))
             println("Insufficient Funds....")
             println(" Please Enter '1' to Try again or '2' to Perform another Transaction or 'Q' to Quit ")
             println(" ===>  ")
@@ -225,7 +237,7 @@ module views
             elseif action === "1"
                 println(" Enter Amount to recharge")
                 global amount = parse(Int64, readline())
-                if amount <= usersDB[username]["account_balance"]
+                if amount <= read_user("account_balance", Dict("username"=> username))
                     break
                 end
             elseif action === "2"
@@ -236,7 +248,8 @@ module views
         println(" Please Enter Password to continue: \n Password ==>")
         pwd = readline()
         transaction_auth(pwd, username)
-        usersDB[username]["account_balance"] -= amount 
+        update_user(Dict("account_balance"=> read_user("account_balance", 
+                                    Dict("username"=> username) - amount)), Dict("username"=> username))
         printstyled(" YOU RECHARGED USER $phone WITH $amount "; color = :blue)
         println(" Press 1 to perform another transaction or 2  to Quit.. \n")
         action = readline()
@@ -311,7 +324,7 @@ module views
 
         amount = amount_to_withdraw_view()
 
-        while amount > usersDB[username]["account_balance"]
+        while amount > read_user("account_balance", Dict("username"=> username))
             println("Insufficient Funds....")
             println(" Please Enter '1' to Try again or '2' to Perform another Transaction or 'Q' to Quit ")
             println(" ===>  ")
@@ -320,7 +333,7 @@ module views
                 exit()
             elseif action === "1"
                 global amount = amount_to_withdraw_view()
-                if amount <= usersDB[username]["account_balance"]
+                if amount <= read_user("account_balance", Dict("username"=> username))
                     break
                 end
             elseif action === "2"
@@ -331,7 +344,8 @@ module views
         println(" Please Enter Password to continue: \n Password ==>")
         pwd = readline()
         transaction_auth(pwd, username)
-        usersDB[username]["account_balance"] = usersDB[username]["account_balance"] - amount
+        update_user(Dict("account_balance"=> read_user("account_balance", 
+                                    Dict("username"=> username) - amount)), Dict("username"=> username))
 
         printstyled(" $amount has been debited from your account.... "; color = :green)
         println(" Press any key to exit")
@@ -342,7 +356,7 @@ module views
     function check_balance(username)
 
         account_view()
-        account_balance = usersDB[username]["account_balance"]
+        account_balance = read_user("account_balance", Dict("username"=> username))
         printstyled(" Your Account Balance is #$account_balance "; color=:green)
         println(" Please Enter '1' to Perform another Transaction or 'Q' to Quit ")
         println(" ===>  ")

@@ -121,7 +121,18 @@ class User_view():
         else:
             pass
         email = input(" Please Enter your Email Address:   ")
+        while "@" not in email or auth.validate_domain_name(email.split("@")[1]) == False:
+            print("Invalid email....\n")
+            email = input(" Enter your Email:   ")
+        else:
+            pass
+
         contact = input(" Please Enter your Phone Number:   ")
+        while all(map(str.isdigit, contact)) is False or len(contact) != 11:
+            print("Contact Invalid")
+            contact = input("Please Enter Invalid Number:  ")
+        else:
+            pass
 
         user = User(username, email, passwd, name, contact)
 

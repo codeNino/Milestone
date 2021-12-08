@@ -38,3 +38,16 @@ def verify_pwd(pwd, user_id):
         return False
     else:
         return True
+
+def validate_domain_name(domain_name):
+    import re
+    regex = "^((?!-)[A-Za-z0-9-]" + "{1,63}(?<!-)\\.)" + "+[A-Za-z]{2,6}"
+    compiled_regex = re.compile(regex)
+
+    if (domain_name==None):
+        return False
+    
+    if (re.search(compiled_regex, domain_name)):
+        return True
+    else:
+        return False

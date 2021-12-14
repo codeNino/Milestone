@@ -1,7 +1,7 @@
 import sys
-import relational_database as RDB
+import mysql_db_connection as engine
 
-DB = RDB.db()
+DB = engine.db()
 
 def verify_users(user_id):
 

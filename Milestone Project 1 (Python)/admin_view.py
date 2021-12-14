@@ -1,13 +1,13 @@
 import models
 import sys, pandas as pd
-import sqlite3, sys, traceback
+import MySQLdb as sql, sys, traceback
 from datetime import datetime
 
 User = models.User
 
 Admin = models.Admin
 
-conn = sqlite3.connect('Milestone_db')
+conn = sql.connect(user='root',host='127.0.0.1',port=3306,password='Oluwanino7',database='Milestone_Project')
 cursor = conn.cursor()
 
 query = '''CREATE TABLE IF NOT EXISTS `Milestone_Admin` (
@@ -22,15 +22,16 @@ cursor.close()
 
 
 def check_admin(admin_id): 
-    conn = sqlite3.connect('Milestone_db')
+    conn = sql.connect(user='root',host='127.0.0.1',port=3306,password='Oluwanino7',database='Milestone_Project')
     cursor = conn.cursor()
     try:
         query = f"""SELECT * from Milestone_Admin where `adminID` = '{admin_id}' """
-        data = cursor.execute(query)
+        cursor.execute(query)
+        all_fields = cursor.description
         result = cursor.fetchone()
         assert result is not None
         row = tuple(result)
-        columns  = tuple([x[0] for x in data.description])
+        columns = tuple([fields[0] for fields in all_fields])
         data = {x:y for x,y in zip(columns,row)}
         cursor.close()
         return data
@@ -87,22 +88,23 @@ class Admin_view():
 
         def __view_userDB():
             try:
-                conn = sqlite3.connect('Milestone_db')
+                conn = sql.connect(user='root',host='127.0.0.1',port=3306,password='Oluwanino7',database='Milestone_Project')
                 cursor = conn.cursor()
                 query = """SELECT * from Milestone_Users"""
-                data = cursor.execute(query)
+                cursor.execute(query)
+                all_fields = cursor.description
                 results = cursor.fetchall()
                 assert results is not None
-                columns  = tuple([x[0] for x in data.description])
+                columns = tuple([fields[0] for fields in all_fields])
 
                 ids = [x[0] for x in results]
-                names = [x[1] for x in data.values()]
-                usernames = [x[2] for x in data.values()]
-                emails = [x[3] for x in data.values()]
-                contacts = [x[4] for x in data.keys()]
-                j_dates =  [x[5] for x in data.keys()]
-                pwd =  [x[6] for x in data.keys()]
-                acc_bal =  [x[7] for x in data.keys()]
+                names = [x[1] for x in results]
+                usernames = [x[2] for x in results]
+                emails = [x[3] for x in results]
+                contacts = [x[4] for x in results]
+                j_dates =  [x[5] for x in results]
+                pwd =  [x[6] for x in results]
+                acc_bal =  [x[7] for x in results]
 
                 values = tuple(ids, names, usernames, emails, contacts, j_dates, pwd, acc_bal)
 
@@ -117,13 +119,14 @@ class Admin_view():
                 
         def __view_adminDB():
             try:
-                conn = sqlite3.connect('Milestone_db')
+                conn = sql.connect(user='root',host='127.0.0.1',port=3306,password='Oluwanino7',database='Milestone_Project')
                 cursor = conn.cursor()
                 query = """SELECT * from Milestone_Admin"""
-                data = cursor.execute(query)
+                cursor.execute(query)
+                all_fields = cursor.description
                 results = cursor.fetchall()
                 assert results is not None
-                columns  = tuple([x[0] for x in data.description])
+                columns = tuple([fields[0] for fields in all_fields])
 
                 ids = [x[0] for x in results]
                 adminIDs = [x[1] for x in results]

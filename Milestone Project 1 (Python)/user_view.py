@@ -1,10 +1,10 @@
-import relational_database as RDB
+import mysql_db_connection as engine
 import models
 import auth
 
 import sys, time
 
-DB = RDB.db()
+DB = engine.db()
 
 User = models.User
 

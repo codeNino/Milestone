@@ -5,7 +5,7 @@ import models
 User = models.User
 
 #create connection with database server
-connection = sql.connect(user='root',host='127.0.0.1',port=3306,password='Oluwanino7')
+connection = sql.connect(user='##',host='##',port='##',password='##')
 
 #create cursor object to perform operations on server
 cursor = connection.cursor()
@@ -30,7 +30,7 @@ connection.close()
 class db():
 
     def add(self, user: User):
-        conn = sql.connect(user='root',host='127.0.0.1',port=3306,password='Oluwanino7',database='Milestone_Project')
+        conn = sql.connect(user='##',host='##',port='##',password='##',database='Milestone_Project')
         cursor = conn.cursor()
 
         try:
@@ -56,7 +56,7 @@ class db():
 
 
     def read(self, filter_by: dict):
-        conn = sql.connect(user='root',host='127.0.0.1',port=3306,password='Oluwanino7',database='Milestone_Project')
+        conn = sql.connect(user='##',host='##',port=3306,password='##',database='Milestone_Project')
         cursor = conn.cursor()
 
         try:
@@ -82,7 +82,7 @@ class db():
                 conn.close()
 
     def update(self, update: dict, by: dict):
-        conn = sql.connect(user='root',host='127.0.0.1',port=3306,password='Oluwanino7',database='Milestone_Project')
+        conn = sql.connect(user='##',host='##',port='##',password='##',database='Milestone_Project')
         cursor = conn.cursor()
 
         try:
@@ -99,7 +99,7 @@ class db():
                 conn.close()
 
     def delete(self, by: dict):
-        conn = sql.connect(user='root',host='127.0.0.1',port=3306,password='Oluwanino7',database='Milestone_Project')
+        conn = sql.connect(user='##',host='##',port='##',password='##',database='Milestone_Project')
         cursor = conn.cursor()
 
         by_key, by_value = list(by.keys())[0], list(by.values())[0]

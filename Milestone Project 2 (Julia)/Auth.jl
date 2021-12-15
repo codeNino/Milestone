@@ -53,14 +53,14 @@ module Auth
 
     function validate_domain_name(domain_name)
 
-        regex = "^((?!-)[A-Za-z0-9-]" * "{1,63}(?<!-)\\.)" * "+[A-Za-z]{2,6}"
-        regex = Regex(regex)
+        let regex = "^((?!-)[A-Za-z0-9-]" * "{1,63}(?<!-)\\.)" * "+[A-Za-z]{2,6}"
+        compiled_regex = Regex(regex)
         
         if domain_name === nothing
             return false
         end
         
-        if occursin(regex, domain_name)
+        if occursin(compiled_regex, domain_name)
             return true
         else
             return false

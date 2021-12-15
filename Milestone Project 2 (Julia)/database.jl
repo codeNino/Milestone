@@ -7,7 +7,7 @@ module database
     using Dates
 
     #create server connection
-    conn =  DBInterface.connect(MySQL.Connection, "127.0.0.1", "root", "Oluwanino7")
+    conn =  DBInterface.connect(MySQL.Connection, "##", "##", "##")
 
     #create new DATABASE
     DBInterface.execute(conn, "CREATE DATABASE IF NOT EXISTS Milestone_Project")
@@ -27,7 +27,7 @@ module database
 
     function add_user(user)
 
-        conn = DBInterface.connect(MySQL.Connection, "127.0.0.1", "root", "Oluwanino7", "Milestone_Project", 3306)
+        conn = DBInterface.connect(MySQL.Connection, "##", "##", "##", "Milestone_Project", ##)
 
         query = "INSERT INTO `Milestone_Users` (name, username, email, password, contact, joining_date)  
             VALUES  ('$user.name',
@@ -40,7 +40,7 @@ module database
 
     function read_user(attribute, filter_by)
 
-        conn = DBInterface.connect(MySQL.Connection, "127.0.0.1", "root", "Oluwanino7", "Milestone_Project")
+        conn = DBInterface.connect(MySQL.Connection, "##", "##", "##", "##")
 
         key = [i for i in keys(filter_by)][1]
         value = [i for i in values(filter_by)][1]
@@ -52,7 +52,7 @@ module database
 
     function update_user(update, by)
 
-        conn = DBInterface.connect(MySQL.Connection, "127.0.0.1", "root", "Oluwanino7", "Milestone_Project", 3306)
+        conn = DBInterface.connect(MySQL.Connection, "##", "##", "##", "Milestone_Project", ##)
         by_key, by_value = [i for i in keys(by)][1],  [i for i in values(by)][1]
         update_key, update_value =  [i for i in keys(update)][1],  [i for i in values(update)][1]
 
